@@ -14,6 +14,7 @@ exports.LIconDefault = require('./components/LIconDefault').default;
 exports.LImageOverlay = require('./components/LImageOverlay').default;
 exports.LLayerGroup = require('./components/LLayerGroup').default;
 exports.LMap = require('./components/LMap').default;
+exports.LMapPM = require('./components/LMapPM').default;
 exports.LMarker = require('./components/LMarker').default;
 exports.LPolygon = require('./components/LPolygon').default;
 exports.LPolyline = require('./components/LPolyline').default;
