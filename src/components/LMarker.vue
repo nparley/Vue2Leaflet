@@ -1,80 +1,65 @@
-<template>
-  <div style="display: none;">
-    <slot v-if="ready"/>
-  </div>
-</template>
-
 <script>
 import propsBinder from '../utils/propsBinder.js';
 import findRealParent from '../utils/findRealParent.js';
-
-const props = {
-  draggable: {
-    type: Boolean,
-    custom: true,
-    default: false
-  },
-  visible: {
-    type: Boolean,
-    custom: true,
-    default: true
-  },
-  latLng: {
-    type: [Object, Array],
-    custom: true
-  },
-  icon: {
-    custom: false,
-    default: () => new L.Icon.Default()
-  },
-  zIndexOffset: {
-    type: Number,
-    custom: false
-  },
-  options: {
-    type: Object,
-    default: () => ({})
-  }
-};
+import { optionsMerger } from '../utils/optionsUtils.js';
+import Layer from '../mixins/Layer.js';
 
 export default {
   name: 'LMarker',
-  props: props,
+  mixins: [Layer],
+  props: {
+    pane: {
+      type: String,
+      default: 'markerPane'
+    },
+    draggable: {
+      type: Boolean,
+      custom: true,
+      default: false
+    },
+    latLng: {
+      type: [Object, Array],
+      custom: true,
+      default: null
+    },
+    icon: {
+      type: [Object],
+      custom: false,
+      default: () => new L.Icon.Default()
+    },
+    zIndexOffset: {
+      type: Number,
+      custom: false,
+      default: null
+    },
+    options: {
+      type: Object,
+      default: () => ({})
+    }
+  },
   data () {
     return {
       ready: false
     };
   },
   mounted () {
-    const options = this.options;
-    if (this.icon) {
-      options.icon = this.icon;
-    }
-    options.draggable = this.draggable;
+    const options = optionsMerger({
+      ...this.layerOptions,
+      icon: this.icon,
+      zIndexOffset: this.zIndexOffset,
+      draggable: this.draggable
+    }, this);
     this.mapObject = L.marker(this.latLng, options);
     L.DomEvent.on(this.mapObject, this.$listeners);
-    propsBinder(this, this.mapObject, props);
-    this.ready = true;
+    propsBinder(this, this.mapObject, this.$options.props);
     this.parentContainer = findRealParent(this.$parent);
     this.parentContainer.addLayer(this, !this.visible);
-  },
-  beforeDestroy () {
-    this.parentContainer.removeLayer(this);
+    this.ready = true;
   },
   methods: {
     setDraggable (newVal, oldVal) {
       if (this.mapObject.dragging) {
         newVal ? this.mapObject.dragging.enable() : this.mapObject.dragging.disable();
-      }
-    },
-    setVisible (newVal, oldVal) {
-      if (newVal === oldVal) return;
-      if (this.mapObject) {
-        if (newVal) {
-          this.parentContainer.addLayer(this);
-        } else {
-          this.parentContainer.removeLayer(this);
-        }
       }
     },
     setLatLng (newVal) {
@@ -93,6 +78,12 @@ export default {
         }
       }
     }
+  },
+  render: function (h) {
+    if (this.ready && this.$slots.default) {
+      return h('div', {style: {display: 'none'}}, this.$slots.default);
+    }
+    return null;
   }
 };
 </script>
