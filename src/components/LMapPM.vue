@@ -6,7 +6,6 @@
 
 <script>
 import L from 'leaflet';
-import 'leaflet.pm';
 import propsBinder from '../utils/propsBinder.js';
 import debounce from '../utils/debounce.js';
 import { optionsMerger } from '../utils/optionsUtils.js';
